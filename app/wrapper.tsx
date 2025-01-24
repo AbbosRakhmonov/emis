@@ -8,7 +8,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import { Provider as ReduxProvider } from 'react-redux';
 
 export default function Wrapper({ children }: { children: React.ReactNode }) {
-  // Client-side logic
   return (
     <ReduxProvider store={store}>
       <ThemeProvider theme={theme}>

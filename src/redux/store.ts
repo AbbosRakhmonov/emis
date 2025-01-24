@@ -3,7 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 export const store = configureStore({
-  devTools: true,
+  devTools: process.env.NODE_ENV !== 'production',
   reducer: {
     [api.reducerPath]: api.reducer,
     [ssoApi.reducerPath]: ssoApi.reducer,

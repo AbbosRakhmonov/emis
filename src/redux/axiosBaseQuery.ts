@@ -50,26 +50,30 @@ export function axiosBaseQuery({ baseUrl }: { baseUrl: string | undefined }) {
 
         if (status === 401 || status === 403) {
           localStorage.clear();
-          window.location.replace('/auth/login');
+          window.history.pushState(null, '', '/auth/login');
           notification.show({
             severity: 'error',
             message: 'Время сессии истекло. Попробуйте войти снова.',
           });
 
+          error.message = 'Время сессии истекло. Попробуйте войти снова.';
           return Promise.reject(error);
         }
 
         if (status === 404) {
-          console.log('404');
           window.location.replace('/404');
         }
 
         if (status === 417) {
-          // eslint-disable-next-line no-alert
-          alert('У пользователя нет роли для доступа');
           localStorage.clear();
-          window.location.replace('/auth/login');
+          notification.show({
+            severity: 'error',
+            message: 'У пользователя нет роли для доступа',
+          });
 
+          window.history.pushState(null, '', '/auth/login');
+
+          error.message = 'У пользователя нет роли для доступа';
           return Promise.reject(error);
         }
 

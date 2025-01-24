@@ -9,7 +9,7 @@ import {
   generateRandomString,
   pkceChallengeFromVerifier,
 } from '@/src/shared/helpers';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import React from 'react';
 
 export const LoginPage: React.FC = () => {
@@ -33,8 +33,23 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Button variant="contained" onClick={redirectToSSO}>
-      Войти через SSO
-    </Button>
+    <>
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 4, textAlign: 'center' }}
+      >
+        Чтобы начать процесс входа в систему, пользователям предлагается нажать
+        на указанную кнопку.
+      </Typography>
+      <Button
+        variant="contained"
+        color="warning"
+        onClick={redirectToSSO}
+        sx={{ mt: 3, mb: 2 }}
+      >
+        Войти через SSO
+      </Button>
+    </>
   );
 };

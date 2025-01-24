@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import Wrapper from './wrapper';
 
 export const metadata: Metadata = {
   title: 'EMIS',
   description: 'EMIS',
-  lang: 'ru',
 };
 
 export const viewport: Viewport = {
@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   minimumScale: 1,
-  userScalable: 'no',
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -23,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <Wrapper>{children}</Wrapper>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Wrapper>{children}</Wrapper>
+        </Suspense>
       </body>
     </html>
   );
