@@ -14,7 +14,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'Roboto, "Times New Roman", Times, serif',
+    fontFamily: 'var(--font-roboto)',
   },
 });
 
