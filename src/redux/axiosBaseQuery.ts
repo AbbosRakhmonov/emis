@@ -4,14 +4,14 @@ import { localStorageGetItem } from '@/src/utils/storage-available';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 
-const HTTP_MESSAGES = {
+const HTTP_MESSAGES: Record<number, string> = {
   401: 'Время сессии истекло. Попробуйте войти снова.',
   403: 'Время сессии истекло. Попробуйте войти снова.',
   404: 'Страница не найдена',
   417: 'У пользователя нет роли для доступа',
 };
 
-const redirectToLogin = (error) => {
+const redirectToLogin = (error: string) => {
   window.location.replace(`/auth/login?error=${error}`);
 };
 

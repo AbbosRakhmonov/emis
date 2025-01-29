@@ -8,15 +8,15 @@ export interface IAttachParams {
 
 export const employeesService = api.injectEndpoints({
   endpoints: (builder) => ({
-    getUser: builder.query<IUser>({
+    getUser: builder.query<IBaseResponse<IUser>, { id: number }>({
       query: ({ id }) => ({
         method: 'GET',
         url: `/user/${id}`,
       }),
     }),
 
-    getUsers: builder.query<IBaseResponse, IPagination>({
-      query: ({ id, ...params }) => ({
+    getUsers: builder.query<IBaseResponse<IUser>, IPagination>({
+      query: ({ ...params }) => ({
         url: '/user/all',
         method: 'GET',
         params,
