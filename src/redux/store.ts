@@ -1,4 +1,5 @@
 import { api, misApi, ssoApi } from '@/src/redux/api';
+import { authSlice } from '@/src/redux/reducers';
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
@@ -8,6 +9,7 @@ export const store = configureStore({
     [api.reducerPath]: api.reducer,
     [ssoApi.reducerPath]: ssoApi.reducer,
     [misApi.reducerPath]: misApi.reducer,
+    auth: authSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()

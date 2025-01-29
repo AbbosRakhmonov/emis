@@ -4,6 +4,17 @@ import { localStorageGetItem } from '@/src/utils/storage-available';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 
+const HTTP_MESSAGES = {
+  401: 'Время сессии истекло. Попробуйте войти снова.',
+  403: 'Время сессии истекло. Попробуйте войти снова.',
+  404: 'Страница не найдена',
+  417: 'У пользователя нет роли для доступа',
+};
+
+const redirectToLogin = (error) => {
+  window.location.replace(`/auth/login?error=${error}`);
+};
+
 function createAxiosInstance(
   baseUrl: string | undefined,
   token: string | undefined
@@ -48,33 +59,13 @@ export function axiosBaseQuery({ baseUrl }: { baseUrl: string | undefined }) {
       async (error) => {
         const { status } = error.response || {};
 
-        if (status === 401 || status === 403) {
+        if (status === 401 || status === 403 || status === 417) {
           localStorage.clear();
-          window.history.pushState(null, '', '/auth/login');
-          notification.show({
-            severity: 'error',
-            message: 'Время сессии истекло. Попробуйте войти снова.',
-          });
-
-          error.message = 'Время сессии истекло. Попробуйте войти снова.';
-          return Promise.reject(error);
+          redirectToLogin(HTTP_MESSAGES[status]);
         }
 
         if (status === 404) {
           window.location.replace('/404');
-        }
-
-        if (status === 417) {
-          localStorage.clear();
-          notification.show({
-            severity: 'error',
-            message: 'У пользователя нет роли для доступа',
-          });
-
-          window.history.pushState(null, '', '/auth/login');
-
-          error.message = 'У пользователя нет роли для доступа';
-          return Promise.reject(error);
         }
 
         return Promise.reject(error);

@@ -20,7 +20,6 @@ import {
   MenuItem,
   Paper,
   Select,
-  Skeleton,
   Stack,
   Typography,
 } from '@mui/material';
@@ -43,7 +42,7 @@ const validationSchema = Yup.object()
   .required();
 
 const defaultValues: FormData = {
-  child_id: '',
+  child_id: null,
   organization_uuid: '',
 };
 
@@ -56,8 +55,8 @@ export function SelectOrganization() {
   const methods = useForm<FormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
-    reValidateMode: 'onBlur',
-    shouldFocusError: true,
+    mode: 'all',
+    reValidateMode: 'onSubmit',
   });
 
   const {
@@ -65,8 +64,6 @@ export function SelectOrganization() {
     setValue,
     formState: { errors, isSubmitting },
   } = methods;
-
-  console.log(errors);
 
   // Список доступных организаций
   const organizationsOptions = useMemo(
@@ -85,7 +82,7 @@ export function SelectOrganization() {
       mapToOptions({
         valueKey: 'id',
         labelKey: 'name',
-        data: departmentsProps.data,
+        data: departmentsProps?.data?.data,
       }),
     [departmentsProps.data]
   );
@@ -94,28 +91,18 @@ export function SelectOrganization() {
     async (selectedValue: string) => {
       if (!selectedValue) return;
 
-      try {
-        // Очищаем данные о дочерней организации
-        localStorageRemoveItem('department');
+      // Очищаем данные о дочерней организации
+      localStorageRemoveItem('department');
+      // Получаем список дочерних организаций
+      const { data: departments } = await getDepartments({
+        uuid: selectedValue,
+      }).unwrap();
 
-        // Получаем список дочерних организаций
-        const departments = await getDepartments({
-          uuid: selectedValue,
-        }).unwrap();
-
-        if (departments.length === 1) {
-          localStorageSetItem('department', JSON.stringify(departments[0]));
-          setValue('child_id', String(departments[0].id));
-        } else {
-          setValue('child_id', null);
-        }
-      } catch (error) {
-        notification.show({
-          severity: 'error',
-          title: 'Ошибка',
-          message: 'Не удалось загрузить дочерние организации',
-        });
-        console.log(error);
+      if (departments.length === 1) {
+        localStorageSetItem('department', JSON.stringify(departments[0]));
+        setValue('child_id', String(departments[0].id));
+      } else {
+        setValue('child_id', null);
       }
     },
     [
@@ -160,7 +147,6 @@ export function SelectOrganization() {
         title: 'Ошибка',
         message: 'Не удалось выполнить операцию',
       });
-      console.log(error);
     }
   };
 
@@ -177,106 +163,112 @@ export function SelectOrganization() {
         padding: 2,
       }}
     >
-      {departmentsProps.isLoading ? (
-        <Skeleton
-          variant="rectangular"
-          height={50}
-          sx={{ mt: 2, borderRadius: 1 }}
-        />
-      ) : (
-        <Box
-          sx={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography component="h2" align="center" mb={3}>
-            Выберите организацию
-          </Typography>
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
-              <Stack spacing={2}>
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography component="h2" align="center" mb={3}>
+          Выберите организацию
+        </Typography>
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <Stack spacing={2}>
+              <Controller
+                name="organization_uuid"
+                control={control}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <FormControl
+                    fullWidth
+                    disabled={isSubmitting || authProps.isLoading}
+                  >
+                    <InputLabel id="organization-select-label">
+                      {authProps.isLoading
+                        ? 'Загрузка Организаций...'
+                        : 'Организация'}
+                    </InputLabel>
+                    <Select
+                      labelId="organization-select-label"
+                      value={value || ''}
+                      label="Организация"
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        onChange(selectedValue);
+                        if (selectedValue) {
+                          handleOrganizationChange(selectedValue);
+                        }
+                      }}
+                      onBlur={onBlur}
+                      error={Boolean(errors.organization_uuid)}
+                    >
+                      {organizationsOptions?.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {Boolean(errors.organization_uuid) && (
+                      <FormHelperText error>
+                        {errors.organization_uuid.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+              {childOptions.length > 0 && (
                 <Controller
-                  name="organization_uuid"
+                  name="child_id"
                   control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <FormControl fullWidth>
-                      <InputLabel id="organization-select-label">
-                        Организация
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <FormControl
+                      fullWidth
+                      disabled={isSubmitting || departmentsProps.isLoading}
+                    >
+                      <InputLabel id="child-select-label">
+                        Дочерняя организация
                       </InputLabel>
                       <Select
-                        labelId="organization-select-label"
+                        labelId="child-select-label"
                         value={value || ''}
-                        label="Организация"
-                        onChange={async (event) => {
-                          const selectedValue = event.target.value;
-                          onChange(selectedValue);
-                          if (selectedValue) {
-                            await handleOrganizationChange(selectedValue);
-                          }
-                        }}
-                        error={!!errors.organization_uuid?.message}
+                        label="Дочерняя организация"
+                        onChange={(event) => onChange(event.target.value)}
+                        error={!!errors.child_id?.message}
+                        onBlur={onBlur}
                       >
-                        {organizationsOptions?.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
+                        {childOptions.map((option) => (
+                          <MenuItem
+                            key={option.value || ''}
+                            value={option.value || ''}
+                          >
                             {option.label}
                           </MenuItem>
                         ))}
                       </Select>
-                      {!!errors.organization_uuid?.message && (
-                        <FormHelperText error>
-                          {errors.organization_uuid.message}
-                        </FormHelperText>
-                      )}
                     </FormControl>
                   )}
                 />
-                {childOptions.length > 0 && (
-                  <Controller
-                    name="child_id"
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <FormControl fullWidth>
-                        <InputLabel id="child-select-label">
-                          Дочерняя организация
-                        </InputLabel>
-                        <Select
-                          labelId="child-select-label"
-                          value={value || ''}
-                          label="Дочерняя организация"
-                          onChange={(event) => onChange(event.target.value)}
-                          error={!!errors.child_id?.message}
-                        >
-                          {childOptions.map((option) => (
-                            <MenuItem
-                              key={option.value || ''}
-                              value={option.value || ''}
-                            >
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                  />
-                )}
+              )}
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="success"
-                  disabled={isSubmitting}
-                  fullWidth
-                >
-                  Подтвердить
-                </Button>
-              </Stack>
-            </form>
-          </FormProvider>
-        </Box>
-      )}
+              <Button
+                type="submit"
+                variant="contained"
+                color="success"
+                disabled={
+                  isSubmitting ||
+                  departmentsProps.isFetching ||
+                  authProps.isFetching
+                }
+                fullWidth
+              >
+                Подтвердить
+              </Button>
+            </Stack>
+          </form>
+        </FormProvider>
+      </Box>
     </Paper>
   );
 }

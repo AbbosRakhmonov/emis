@@ -1,12 +1,17 @@
 export interface IOrganization {
   id: number;
-  name: string;
-  shortName: string;
-  address: string;
-  hierarchy: string;
-  parent: string;
-  parentId: string | number;
-  status: string;
   uuid: string;
-  children: any[];
+  name: string;
+  active: boolean;
+  tin: string;
+  email: string;
+  phone: string;
+  type: string;
+  country: string;
+  state: string;
+  city: string;
+  district: string;
+  line: string;
+  serviceArea: string;
+  users: any[];
 }

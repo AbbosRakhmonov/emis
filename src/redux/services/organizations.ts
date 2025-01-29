@@ -34,16 +34,16 @@ export const organizationsService = api.injectEndpoints({
 
     getOrganizations: builder.mutation({
       query: (params) => ({
-        data: params,
         method: 'POST',
-        url: `/organization/list-search`,
+        url: `/organization/all`,
+        params,
       }),
     }),
 
     getOrganizationDepartments: builder.query({
       query: ({ uuid }: { uuid: string }) => ({
         method: 'GET',
-        url: `/organization/departments/${uuid}`,
+        url: `/organization/department/${uuid}`,
       }),
     }),
   }),
@@ -54,7 +54,6 @@ export const {
   useLazyGetOrganizationQuery,
   useEditOrganizationMutation,
   useGetOrganizationsMutation,
-
   useCreateOrganizationMutation,
   useDeleteOrganizationMutation,
   useGetOrganizationDepartmentsQuery,

@@ -9,6 +9,7 @@ import { notification } from '@/src/utils/snackbarUtils';
 import {
   localStorageGetItem,
   localStorageRemoveItem,
+  localStorageSetItem,
 } from '@/src/utils/storage-available';
 import { CircularProgress, Stack, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
@@ -28,7 +29,7 @@ export function CallbackPage() {
   const pkceCodeVerifier = localStorageGetItem('pkce_code_verifier');
 
   const clearAuthData = () => {
-    Cookies.remove('user');
+    localStorageRemoveItem('user');
     Cookies.remove('access_token');
   };
 
@@ -52,12 +53,18 @@ export function CallbackPage() {
       throw new Error('У вас нет активных организаций');
     }
 
-    Cookies.set('user', JSON.stringify(result.data));
+    localStorageSetItem('user', JSON.stringify(result.data));
 
     notification.show({ severity: 'success', message: 'Выберите организацию' });
 
     router.push('/select-organization');
-  }, [fetchAuthPayload, handleError, router]);
+  }, [
+    fetchAuthPayload,
+    handleError,
+    router,
+    notification,
+    localStorageSetItem,
+  ]);
 
   const requestToken = useCallback(
     async (code: string) => {
@@ -73,6 +80,7 @@ export function CallbackPage() {
       if (!data?.access_token) {
         throw new Error('Ошибка при получении токена');
       }
+
       // expires_in is in seconds, convert to milliseconds
       Cookies.set('access_token', data.access_token, {
         expires: new Date(Date.now() + data.expires_in * 1000),

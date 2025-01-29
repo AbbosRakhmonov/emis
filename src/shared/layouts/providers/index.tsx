@@ -7,15 +7,17 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import { Provider as ReduxProvider } from 'react-redux';
 
-export default function Wrapper({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ReduxProvider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <AppRouterCacheProvider>
+      <ReduxProvider store={store}>
         <SnackbarProvider>
-          <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
         </SnackbarProvider>
-      </ThemeProvider>
-    </ReduxProvider>
+      </ReduxProvider>
+    </AppRouterCacheProvider>
   );
 }

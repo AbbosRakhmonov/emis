@@ -13,6 +13,7 @@ import React from 'react';
 const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <Box
       sx={{
@@ -65,6 +66,8 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   src="/images/login.svg"
                   alt="Doctor illustration"
                   fill
+                  priority={true}
+                  as="img"
                   style={{
                     objectFit: 'contain',
                     objectPosition: 'center',

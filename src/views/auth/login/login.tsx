@@ -9,10 +9,21 @@ import {
   generateRandomString,
   pkceChallengeFromVerifier,
 } from '@/src/shared/helpers';
+import { notification } from '@/src/utils/snackbarUtils';
 import { Button, Typography } from '@mui/material';
-import React from 'react';
+import { useSearchParams } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 export const LoginPage: React.FC = () => {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+
+  useEffect(() => {
+    if (error) {
+      notification.show({ severity: 'error', message: error });
+    }
+  }, [error]);
+
   const redirectToSSO = async (): Promise<void> => {
     const state = generateRandomString();
     const codeVerifier = generateRandomString();

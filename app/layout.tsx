@@ -1,26 +1,24 @@
+import Providers from '@/src/shared/layouts/providers';
+import 'dayjs/locale/ru';
 import type { Metadata, Viewport } from 'next';
 import { Roboto } from 'next/font/google';
 import { Suspense } from 'react';
-import Wrapper from './wrapper';
 
 const roboto = Roboto({
-  weight: [300, 400, 500, 700],
-  subsets: ['cyrillic', 'latin'],
+  weight: ['300', '400', '500', '700'],
+  subsets: ['latin', 'cyrillic'],
   display: 'swap',
   variable: '--font-roboto',
 });
 
 export const metadata: Metadata = {
   title: 'EMIS',
-  description: 'EMIS',
+  description: 'EMIS - Electronic Medical Information System',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  minimumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -29,10 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${roboto.variable} font-sans`}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Wrapper>{children}</Wrapper>
+    <html suppressHydrationWarning lang="ru" className={roboto.variable}>
+      <body suppressHydrationWarning>
+        <Suspense fallback={null}>
+          <Providers>{children}</Providers>
         </Suspense>
       </body>
     </html>
